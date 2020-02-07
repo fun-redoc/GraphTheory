@@ -79,26 +79,24 @@ topological_sort g = sortt queue indegrees [] where
                                    ) (indegrees, qtail) adj
      in sortt queue' indegrees' sorted'
 
-distance_matrix g start = iterate initial_dm start (M.keys $ M.delete start initial_dm) where
+distance_matrix g start = iterate initial_dm (start : (M.keys $ M.delete start initial_dm)) where
   initial_dm = foldr (\v acc-> 
                         if (v == start)
                         then (M.insert v (0, Just v) acc)
                         else (M.insert v (-1, Nothing) acc)
                     ) M.empty $ all_nodes g
-  iterate dm s (v:vs) = if null vs then dm' else iterate dm' v vs where
-    start_dm = dm M.! s
+  iterate dm [] = dm
+  iterate dm (v:vs) = iterate dm' vs where
+    start_dm = dm M.! v
     start_dist = fst start_dm
     prev = snd start_dm
     dm' = foldr (\v' ->M.adjust (\d -> case d of
-                                         (_, Nothing) -> (start_dist+1, Just s)
-                                         (last_dist, last_vertx) -> if last_dist <= start_dist
-                                                                    then (last_dist, last_vertx)
-                                                                    else (start_dist+1, Just s)
-                                       --if Nothing == snd d 
-                                       --then (start_dist+1, Just s)
-                                       --else d
+                                  (_, Nothing)            -> (start_dist+1, Just v)
+                                  (last_dist, last_vertx) -> if last_dist <= start_dist
+                                                             then (last_dist, last_vertx)
+                                                             else (start_dist+1, Just v)
                                 ) v'
-                ) dm (adjacent_vertices g s)
+                ) dm (adjacent_vertices g v)
  
 backtrack::(Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>a->a->M.HashMap a (Int, Maybe a)->t a
 backtrack start dest dist_mat = iterate dest (pure dest) where
