@@ -39,6 +39,7 @@ library
     , vector
     , matrix
     , unordered-containers
+    , basic-prelude
   default-language: Haskell2010
 
 executable GraphTheory-exe
