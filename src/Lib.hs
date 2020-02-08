@@ -9,14 +9,36 @@
 -- TODO: replace List with array or vector making appending O(1) instead O(n)
 
 module Lib
-    ( someFunc
-    ) where
+--    ( someFunc
+--    ) 
+    where
 
 import BasicPrelude
 import CorePrelude
 import qualified Data.HashMap.Lazy as M
 import qualified Data.HashSet as S
 import Data.Hashable (Hashable)
+
+class (Applicative t, Foldable t, Ord p)=>PriorityQueue pq t p a where
+    emptyPriorityQueue::pq t p a
+    is_empty::pq t p a->Bool
+    insert_with_priority::pq t p a->(a,p)->pq t p a
+    pull_highest_priority_element::pq t p a->(Maybe (a,p), pq t p a)
+data PQ t p a = PQ (t (a,p)) 
+instance (Show a, Eq a,  Ord p)=>PriorityQueue PQ [] p a where
+    emptyPriorityQueue = PQ []
+    is_empty (PQ pq) = null pq
+    insert_with_priority (PQ pq) (e,p) = PQ $ nubBy (\(x,_) (y,_) -> if x /= y 
+                                                             then False 
+                                                             else (error ((show x)++" is dupplicat. duplicates are not allowed.")))
+                                            $ reverse 
+                                            $ sortOn snd ((e,p):pq)
+    pull_highest_priority_element pq@(PQ [])= (Nothing, pq)
+    pull_highest_priority_element (PQ (x:xs))= (Just x, PQ xs)
+instance (Show p, Show a)=>Show (PQ [] p a) where
+    show (PQ pq) = show pq
+
+type TrivialPQ a p = PQ [] a p
 
 class Graph g a b where
   num_vertices::g a b->Int
@@ -102,7 +124,7 @@ backtrack::(Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>
 backtrack start dest dist_mat = iterate dest (pure dest) where
     iterate dest' res = if dest' == start then res else iterate prev_vert res' where
         prev_dist = dist_mat M.! dest'
-        prev_vert = maybe (error ((show dest')++"is not member if dist matrix")) id $ snd prev_dist
+        prev_vert = maybe (error ((show dest')++" is not member if dist matrix")) id $ snd prev_dist
         res' = (pure prev_vert) <> res
 
   
@@ -111,48 +133,94 @@ shortest_path_unweighted::(Graph g a d, Show a, Eq a, Hashable a, Applicative t,
 shortest_path_unweighted g start dest =
     backtrack start dest $ distance_matrix g start
 
+ 
+dijkstra_distance_matrix::(Graph g a d, Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>g a d->a->t a
+dijkstra_distance_matrix g start = undefined where
+  initial_dm = foldr (\v acc-> 
+                        if (v == start)
+                        then (M.insert v (Just (0, v)) acc)
+                        else (M.insert v Nothing       acc)
+                    ) M.empty $ all_nodes g
+
+
 someFunc :: IO ()
 someFunc = do
-    let ugraph =  add_edge_undir (0::Int) 1 1 
-                . add_edge_undir 1 2 1
-                . add_edge_undir 2 7 1
-                . add_edge_undir 2 4 1
-                . add_edge_undir 2 3 1
-                . add_edge_undir 1 5 1
-                . add_edge_undir 5 6 1
-                . add_edge_undir 3 6 1
-                . add_edge_undir 3 4 1
-                . add_edge_undir 6 8 1
-                $ mkAdjGraph
-    let dgraph =  add_edge (0::Int) 1 1 
-                . add_edge 1 2 1
-                . add_edge 2 7 1
-                . add_edge 2 4 1
-                . add_edge 2 3 1
-                . add_edge 1 5 1
-                . add_edge 5 6 1
-                . add_edge 3 6 1
-                . add_edge 3 4 1
-                . add_edge 6 8 1
-                $ mkAdjGraph
-    putStrLn $ tshow $ breadth_first ugraph 2
-    putStrLn $ tshow $ get_indegrees dgraph
-    putStrLn $ tshow $ topological_sort dgraph
-    putStrLn $ tshow $ distance_matrix dgraph 0
-    let dgraph1 = add_edge(0::Int) 1 1
-                . add_edge_undir 1 2 1
-                . add_edge_undir 1 3 1
-                . add_edge_undir 2 3 1
-                . add_edge_undir 1 4 1
-                . add_edge_undir 3 5 1
-                . add_edge_undir 5 4 1
-                . add_edge_undir 3 6 1
-                . add_edge_undir 6 7 1
-                . add_edge_undir 0 7 1
-                $ mkAdjGraph
+--    let ugraph =  add_edge_undir (0::Int) 1 1 
+--                . add_edge_undir 1 2 1
+--                . add_edge_undir 2 7 1
+--                . add_edge_undir 2 4 1
+--                . add_edge_undir 2 3 1
+--                . add_edge_undir 1 5 1
+--                . add_edge_undir 5 6 1
+--                . add_edge_undir 3 6 1
+--                . add_edge_undir 3 4 1
+--                . add_edge_undir 6 8 1
+--                $ mkAdjGraph
+--    let dgraph =  add_edge (0::Int) 1 1 
+--                . add_edge 1 2 1
+--                . add_edge 2 7 1
+--                . add_edge 2 4 1
+--                . add_edge 2 3 1
+--                . add_edge 1 5 1
+--                . add_edge 5 6 1
+--                . add_edge 3 6 1
+--                . add_edge 3 4 1
+--                . add_edge 6 8 1
+--                $ mkAdjGraph
+--    putStrLn $ tshow $ breadth_first ugraph 2
+--    putStrLn $ tshow $ get_indegrees dgraph
+--    putStrLn $ tshow $ topological_sort dgraph
+--    putStrLn $ tshow $ distance_matrix dgraph 0
+--    putStrLn "---------------------------------"
+--    let dgraph1 = add_edge_undir(0::Int) 1 1
+--                . add_edge_undir 1 2 1
+--                . add_edge_undir 1 3 1
+--                . add_edge_undir 2 3 1
+--                . add_edge_undir 1 4 1
+--                . add_edge_undir 3 5 1
+--                . add_edge_undir 5 4 1
+--                . add_edge_undir 3 6 1
+--                . add_edge_undir 6 7 1
+--                . add_edge_undir 0 7 1
+--                $ mkAdjGraph
+--    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 5)::[Int])
+--    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 6)::[Int])
+--    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 7 4)::[Int])
+--    putStrLn "---------------------------------"
+--    let ugraph1 = add_edge(0::Int) 1 1
+--                . add_edge 1 2 1
+--                . add_edge 1 3 1
+--                . add_edge 2 3 1
+--                . add_edge 1 4 1
+--                . add_edge 3 5 1
+--                . add_edge 5 4 1
+--                . add_edge 3 6 1
+--                . add_edge 6 7 1
+--                . add_edge 0 7 1
+--                $ mkAdjGraph
+--    putStrLn $ tshow $ ugraph1
+--    putStrLn $ tshow $ distance_matrix ugraph1 0
+--    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 5)::[Int])
+--    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 6)::[Int])
+--    --putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 7 4)::[Int])
     putStrLn "---------------------------------"
-    putStrLn $ tshow $ dgraph1
-    putStrLn $ tshow $ distance_matrix dgraph1 0
-    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 5)::[Int])
-    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 6)::[Int])
-    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 7 4)::[Int])
+--    let pq = emptyPriorityQueue::TrivialPQ Int Char 
+--    let pq' = insert_with_priority pq ('a', 1) 
+--    let pq'' = insert_with_priority pq' ('b', 2) 
+--    let pq''' = pull_highest_priority_element pq''
+--    putStrLn $ tshow $ pq
+--    putStrLn $ tshow $ pq''
+--    putStrLn $ tshow $ pq'''
+--    putStrLn $ tshow $ insert_with_priority pq'' ('a',3)
+    let dwgraph1 = add_edge 'a' 'b' 2
+                 . add_edge 'a' 'c' 3
+                 . add_edge 'b' 'd' 2
+                 . add_edge 'c' 'e' 6
+                 . add_edge 'e' 'b' 5
+                 . add_edge 'e' 'd' 4
+                 $ mkAdjGraph
+    putStrLn $ tshow $ dwgraph1
+    putStrLn $ tshow $ ((dijkstra_distance_matrix dwgraph1 'a')::[Char])
+    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 0 5)::[Int])
+    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 0 6)::[Int])
+    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 7 4)::[Int])
