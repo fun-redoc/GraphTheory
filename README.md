@@ -10,18 +10,18 @@ only for joy. making production ready is not intended. memory consumption, perfo
 + simple adjacent matrix implementation using HashMap
 + beadth first
 + topological sort 
++ shortest parh
 
 ##WORKING
-+ replace lists by array or vector
-+ clean up main and lib
++ dijkstra
 
 ##TODO
-+ shortest parh
-+ dijkstra
 + prim
 + kruskal
 + floyd warshall
 + hungarian
 + try some real world problems 
++ replace lists by array or vector
++ clean up main and lib
 
 
