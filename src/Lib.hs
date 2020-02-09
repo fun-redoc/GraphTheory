@@ -200,49 +200,48 @@ dijkstra pq g start dest =
 
 someFunc :: IO ()
 someFunc = do
---    let ugraph =  add_edge_undir (0::Int) 1 1 
---                . add_edge_undir 1 2 1
---                . add_edge_undir 2 7 1
---                . add_edge_undir 2 4 1
---                . add_edge_undir 2 3 1
---                . add_edge_undir 1 5 1
---                . add_edge_undir 5 6 1
---                . add_edge_undir 3 6 1
---                . add_edge_undir 3 4 1
---                . add_edge_undir 6 8 1
---                $ mkAdjGraph
---    let dgraph =  add_edge (0::Int) 1 1 
---                . add_edge 1 2 1
---                . add_edge 2 7 1
---                . add_edge 2 4 1
---                . add_edge 2 3 1
---                . add_edge 1 5 1
---                . add_edge 5 6 1
---                . add_edge 3 6 1
---                . add_edge 3 4 1
---                . add_edge 6 8 1
---                $ mkAdjGraph
---    putStrLn $ tshow $ breadth_first ugraph 2
---    putStrLn $ tshow $ get_indegrees dgraph
---    putStrLn $ tshow $ topological_sort dgraph
---    putStrLn $ tshow $ distance_matrix dgraph 0
---    putStrLn "---------------------------------"
---    let dgraph1 = add_edge_undir(0::Int) 1 1
---                . add_edge_undir 1 2 1
---                . add_edge_undir 1 3 1
---                . add_edge_undir 2 3 1
---                . add_edge_undir 1 4 1
---                . add_edge_undir 3 5 1
---                . add_edge_undir 5 4 1
---                . add_edge_undir 3 6 1
---                . add_edge_undir 6 7 1
---                . add_edge_undir 0 7 1
---                $ mkAdjGraph
---    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 5)::[Int])
---    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 6)::[Int])
---    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 7 4)::[Int])
---    putStrLn "---------------------------------"
-    let ugraph1 = add_edge(0::Int) 1 1
+    let ugraph =  add_edge_undir (0::Int) 1 1 
+                . add_edge_undir 1 2 1
+                . add_edge_undir 2 7 1
+                . add_edge_undir 2 4 1
+                . add_edge_undir 2 3 1
+                . add_edge_undir 1 5 1
+                . add_edge_undir 5 6 1
+                . add_edge_undir 3 6 1
+                . add_edge_undir 3 4 1
+                . add_edge_undir 6 8 1
+                $ mkAdjGraph
+    let dgraph =  add_edge (0::Int) 1 1 
+                . add_edge 1 2 1
+                . add_edge 2 7 1
+                . add_edge 2 4 1
+                . add_edge 2 3 1
+                . add_edge 1 5 1
+                . add_edge 5 6 1
+                . add_edge 3 6 1
+                . add_edge 3 4 1
+                . add_edge 6 8 1
+                $ mkAdjGraph
+    putStrLn $ tshow $ breadth_first ugraph 2
+    putStrLn $ tshow $ get_indegrees dgraph
+    putStrLn $ tshow $ topological_sort dgraph
+    putStrLn "---------------------------------"
+    let ugraph1 = add_edge_undir(0::Int) 1 1
+                . add_edge_undir 1 2 1
+                . add_edge_undir 1 3 1
+                . add_edge_undir 2 3 1
+                . add_edge_undir 1 4 1
+                . add_edge_undir 3 5 1
+                . add_edge_undir 5 4 1
+                . add_edge_undir 3 6 1
+                . add_edge_undir 6 7 1
+                . add_edge_undir 0 7 1
+                $ mkAdjGraph
+    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 5)::[Int])
+    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 6)::[Int])
+    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 7 4)::[Int])
+    putStrLn "---------------------------------"
+    let dgraph1 = add_edge(0::Int) 1 1
                 . add_edge 1 2 1
                 . add_edge 1 3 1
                 . add_edge 2 3 1
@@ -253,8 +252,8 @@ someFunc = do
                 . add_edge 6 7 1
                 . add_edge 0 7 1
                 $ mkAdjGraph
-    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 5)::[Int])
-    putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 0 6)::[Int])
+    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 5)::[Int])
+    putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 6)::[Int])
     --putStrLn $ tshow $ ((shortest_path_unweighted ugraph1 7 4)::[Int])
     putStrLn "---------------------------------"
     let dwgraph1 = add_edge 'a' 'b' (2::Int)
@@ -268,7 +267,5 @@ someFunc = do
     putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'a' 'd')::(Infinite Int, [Char]))
     putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'a' 'e')::(Infinite Int, [Char]))
     putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'a' 'b')::(Infinite Int, [Char]))
-    putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'd' 'a')::(Infinite Int, [Char]))
-    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 0 5)::[Int])
-    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 0 6)::[Int])
-    --putStrLn $ tshow $ ((shortest_path_unweighted dwgraph1 7 4)::[Int])
+--    putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'd' 'a')::(Infinite Int, [Char]))
+    putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Int) dgraph1 0 6)::(Infinite Int, [Int]))
