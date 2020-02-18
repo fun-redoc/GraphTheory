@@ -29,7 +29,13 @@ library
   exposed-modules:
       Lib
   other-modules:
-      Paths_GraphTheory
+--      Paths_GraphTheory
+      Graph
+    , UnweightedGraph
+    , WeightedGraph
+    , AdjacenceMatrix
+    , PriorityQueue
+    , GraphAlgorithms
   hs-source-dirs:
       src
   build-depends:
@@ -45,7 +51,7 @@ library
 executable GraphTheory-exe
   main-is: Main.hs
   other-modules:
-      Paths_GraphTheory
+--      Paths_GraphTheory
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
