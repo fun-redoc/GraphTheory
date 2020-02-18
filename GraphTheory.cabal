@@ -29,10 +29,7 @@ library
   exposed-modules:
       Lib
   other-modules:
---      Paths_GraphTheory
       Graph
-    , UnweightedGraph
-    , WeightedGraph
     , AdjacenceMatrix
     , PriorityQueue
     , GraphAlgorithms

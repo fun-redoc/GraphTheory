@@ -126,7 +126,8 @@ dijkstra_distance_matrix priorityQueueContructor graph start =
       start''' = maybe Nothing (\(s,_)->Just s) start''
       (dm', priority_queue') 
          = foldr (\(v,w) (dm', prq') ->
-                    let dist = (fst $ dm' M.! start) + (Bound w)
+                    let dist_to_start = (fst $ dm' M.! start)
+                        dist = dist_to_start + (Bound w)
                         (old_dist, old_prev) = dm' M.! v
                         (new_dist, new_prev) = if dist < old_dist
                                                then (dist, Just start)
