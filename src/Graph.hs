@@ -34,12 +34,12 @@ class Graph g a  where
   all_nodes::g a->[a]
 
 
-class (Graph (g d p) a, Distro d p a)=>WGraph g d p a where
-  get_weight::g d p a->a->a->p
-  adjacent_vertices_weighted::g d p a->a->[(a,p)]
-  connect_weighted::a->a->p->g d p a->g d p a
-  add_edge_weighted::a->a->p->g d p a ->g d p a
-  add_edge_weighted_undir::a->a->p->g d p a->g d p a
+class (Num p, Graph g a)=>WGraph g a p where
+  get_weight                ::g a->a->a->p
+  adjacent_vertices_weighted::g a->a->[(a,p)]
+  connect_weighted          ::a->a->p->g a->g a
+  add_edge_weighted         ::a->a->p->g a->g a
+  add_edge_weighted_undir   ::a->a->p->g a->g a
 
 
 class (Num p, Ord p)=>Distro d p a where

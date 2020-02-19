@@ -25,7 +25,12 @@ import Data.Maybe (fromJust)
 
 import Graph
 
-data AdjGraph d b a = (Distro d b a)=>AdjGraph {getMap::M.HashMap a (d b a)}
+
+type UnweightedAdjGraph = (AdjGraph PMF Int)
+type WeightedAdjGraph = (AdjGraph PMF) 
+
+
+data AdjGraph d b a = (Num b, Distro d b a)=>AdjGraph {getMap::M.HashMap a (d b a)}
 
 instance (Show b, Show a, Show (d b a))=>Show (AdjGraph d b a) where
     show (AdjGraph hm) = "AM: "++(show hm)
@@ -48,8 +53,6 @@ adjg_get_indegrees (AdjGraph g) =
 adjg_all_nodes (AdjGraph g) = M.keys g
 
 
-type UnweightedAdjGraph = (AdjGraph PMF Int)
-type WeightedAdjGraph = (AdjGraph PMF) 
 
 instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   emptyGraph                 = mkAdjGraph
@@ -62,8 +65,8 @@ instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   get_indegrees              = adjg_get_indegrees
   all_nodes                  = adjg_all_nodes
 
-instance (Eq a, Hashable a, Ord b, Distro d b a)=>
-         WGraph AdjGraph d b a where
+instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>
+         WGraph (AdjGraph d b) a b where
   get_weight                 = adjg_get_weight
   adjacent_vertices_weighted = adjg_adjacent_vertices_weighted
   connect_weighted v1 v2 w = adjg_connect v1 v2 w 
