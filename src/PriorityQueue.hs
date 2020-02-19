@@ -21,6 +21,30 @@ import Data.Hashable (Hashable)
 import Data.Semigroup
 import Data.Maybe (fromJust)
 
+type TrivialPQ a p = PQ [] a p
+
+class (Applicative t, Foldable t, Ord p)=>PriorityQueue pq t p a where
+    emptyPriorityQueue::pq t p a
+    is_empty::pq t p a->Bool
+    insert_with_priority::pq t p a->(a,p)->pq t p a
+    pull_highest_priority_element::pq t p a->(Maybe (a,p), pq t p a)
+    update_weight::pq t p a->a->p->pq t p a
+
+data PQ t p a = PQ (t (a,p)) 
+instance (Show a, Eq a,  Ord p)=>PriorityQueue PQ [] p a where
+    emptyPriorityQueue = PQ []
+    is_empty (PQ pq) = null pq
+    insert_with_priority (PQ pq) (e,p) = PQ $ nubBy (\(x,_) (y,_) -> if x /= y 
+                                                                 then False 
+                                                                 else True)
+                                            $ reverse 
+                                            $ sortOn snd ((e,p):pq)
+    pull_highest_priority_element pq@(PQ [])= (Nothing, pq)
+    pull_highest_priority_element (PQ (x:xs))= (Just x, PQ xs)
+    update_weight (PQ xs) x p = PQ $ sortOn snd $ map (\(x',p') -> if x == x' then (x,p) else (x', p')) xs
+instance (Show p, Show a)=>Show (PQ [] p a) where
+    show (PQ pq) = show pq
+
 instance Semigroup Int where
     (<>) = (+)
 instance Monoid Int where
@@ -66,27 +90,3 @@ instance (Show a, Semigroup a)=>Semigroup (Infinite a) where
     (<>) x y = error ((show x)++"<>"++(show y)++" is not defined")
 instance (Show a, Monoid a)=>Monoid (Infinite a) where
     mempty = (Bound (mempty::a))
-
-class (Applicative t, Foldable t, Ord p)=>PriorityQueue pq t p a where
-    emptyPriorityQueue::pq t p a
-    is_empty::pq t p a->Bool
-    insert_with_priority::pq t p a->(a,p)->pq t p a
-    pull_highest_priority_element::pq t p a->(Maybe (a,p), pq t p a)
-    update_weight::pq t p a->a->p->pq t p a
-
-data PQ t p a = PQ (t (a,p)) 
-instance (Show a, Eq a,  Ord p)=>PriorityQueue PQ [] p a where
-    emptyPriorityQueue = PQ []
-    is_empty (PQ pq) = null pq
-    insert_with_priority (PQ pq) (e,p) = PQ $ nubBy (\(x,_) (y,_) -> if x /= y 
-                                                                 then False 
-                                                                 else True)
-                                            $ reverse 
-                                            $ sortOn snd ((e,p):pq)
-    pull_highest_priority_element pq@(PQ [])= (Nothing, pq)
-    pull_highest_priority_element (PQ (x:xs))= (Just x, PQ xs)
-    update_weight (PQ xs) x p = PQ $ sortOn snd $ map (\(x',p') -> if x == x' then (x,p) else (x', p')) xs
-instance (Show p, Show a)=>Show (PQ [] p a) where
-    show (PQ pq) = show pq
-
-type TrivialPQ a p = PQ [] a p

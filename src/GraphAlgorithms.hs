@@ -154,4 +154,3 @@ dijkstra::(PriorityQueue pq t (Infinite d) a
 dijkstra priorityQueueContructor graph start dest =
     let dm = dijkstra_distance_matrix priorityQueueContructor graph start
      in (fst $ dm M.! dest, backtrack start dest dm)
-

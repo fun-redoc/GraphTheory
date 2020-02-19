@@ -22,6 +22,26 @@ import Data.Hashable (Hashable)
 import Data.Maybe (fromJust)
 
 
+class Graph g a  where
+  emptyGraph::g a
+  num_vertices::g a ->Int
+  adjacent_vertices::g a ->a->[a]
+  add_vertex::a->g a ->g a 
+  connect::a->a->g a->g a
+  add_edge::a->a->g a ->g a
+  add_edge_undir::a->a->g a->g a
+  get_indegrees::(Distro d Int a)=>g a->(d Int a)
+  all_nodes::g a->[a]
+
+
+class (Graph (g d p) a, Distro d p a)=>WGraph g d p a where
+  get_weight::g d p a->a->a->p
+  adjacent_vertices_weighted::g d p a->a->[(a,p)]
+  connect_weighted::a->a->p->g d p a->g d p a
+  add_edge_weighted::a->a->p->g d p a ->g d p a
+  add_edge_weighted_undir::a->a->p->g d p a->g d p a
+
+
 class (Num p, Ord p)=>Distro d p a where
     emptyDistro::d p a
     filterByProb::(p->Bool)->d p a->d p a
@@ -45,23 +65,4 @@ instance (Eq a, Hashable a, Num p, Ord p)=>Distro PMF p a where
   decBy p e d        = incBy (-1) e d
 instance (Show a, Show p)=>Show (PMF p a) where
     show (PMF hm) = "PMF: "++(show hm)
-
-class Graph g a  where
-  emptyGraph::g a
-  num_vertices::g a ->Int
-  adjacent_vertices::g a ->a->[a]
-  add_vertex::a->g a ->g a 
-  connect::a->a->g a->g a
-  add_edge::a->a->g a ->g a
-  add_edge_undir::a->a->g a->g a
-  get_indegrees::(Distro d Int a)=>g a->(d Int a)
-  all_nodes::g a->[a]
-
-
-class (Graph (g d p) a, Distro d p a)=>WGraph g d p a where
-  get_weight::g d p a->a->a->p
-  adjacent_vertices_weighted::g d p a->a->[(a,p)]
-  connect_weighted::a->a->p->g d p a->g d p a
-  add_edge_weighted::a->a->p->g d p a ->g d p a
-  add_edge_weighted_undir::a->a->p->g d p a->g d p a
 
