@@ -25,10 +25,8 @@ import Data.Maybe (fromJust)
 
 import Graph
 
-
 type UnweightedAdjGraph = (AdjGraph PMF Int)
-type WeightedAdjGraph = (AdjGraph PMF) 
-
+type WeightedAdjGraph a b = (Num b)=>(AdjGraph PMF) b a
 
 data AdjGraph d b a = (Num b, Distro d b a)=>AdjGraph {getMap::M.HashMap a (d b a)}
 
@@ -43,6 +41,7 @@ adjg_add_vertex v (AdjGraph g) = AdjGraph (M.alter (\tryAdj -> Just $ maybe empt
 adjg_connect v1 v2 w (AdjGraph g) = AdjGraph (M.adjust (\adj -> set v2 w adj) v1 g)
 adjg_add_edge v1 v2 w = adjg_connect v1 v2 w . adjg_add_vertex v1 . adjg_add_vertex v2
 adjg_add_edge_undir v1 v2 w = adjg_connect v2 v1 w .adjg_connect v1 v2 w . adjg_add_vertex v1 . adjg_add_vertex v2
+adjg_get_weight::(Eq a, Hashable a, Num b, Distro d b a)=>(AdjGraph d b a)->a->a->b
 adjg_get_weight (AdjGraph g) from to = maybe 0 id $
     (M.lookup from g) >>= (\adj-> return $ getMass adj to)
 adjg_get_indegrees (AdjGraph g) = 
@@ -51,7 +50,6 @@ adjg_get_indegrees (AdjGraph g) =
           ) nullDistro g
     where nullDistro = foldr (\v distro->set v 0 distro) emptyDistro (M.keys g)
 adjg_all_nodes (AdjGraph g) = M.keys g
-
 
 
 instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where

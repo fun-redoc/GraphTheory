@@ -21,7 +21,7 @@ import Data.Hashable (Hashable)
 import Data.Semigroup
 import Data.Maybe (fromJust)
 
-type TrivialPQ a p = PQ [] a p
+type TrivialPQ a p = PQ [] p a
 
 class (Applicative t, Foldable t, Ord p)=>PriorityQueue pq t p a where
     emptyPriorityQueue::pq t p a
@@ -45,10 +45,10 @@ instance (Show a, Eq a,  Ord p)=>PriorityQueue PQ [] p a where
 instance (Show p, Show a)=>Show (PQ [] p a) where
     show (PQ pq) = show pq
 
-instance Semigroup Int where
-    (<>) = (+)
-instance Monoid Int where
-    mempty = 0
+--instance Semigroup Int where
+--    (<>) = (+)
+--instance Monoid Int where
+--    mempty = 0
 
 data Infinite a = NegativeInfinity | Bound a | PositiveInfinity deriving (Ord, Show, Eq)
 instance (Ord a, Show a, Num a)=>Num (Infinite a) where
@@ -79,14 +79,14 @@ instance (Ord a, Show a, Num a)=>Num (Infinite a) where
     signum NegativeInfinity = Bound (fromInteger (-1))
     fromInteger x = Bound (fromInteger x)
 
-instance (Show a, Semigroup a)=>Semigroup (Infinite a) where
-    (<>) (Bound x) (Bound y) = Bound (x <> y)
-    (<>) NegativeInfinity (Bound _) = NegativeInfinity
-    (<>) PositiveInfinity (Bound x) = PositiveInfinity
-    (<>) (Bound _) PositiveInfinity = PositiveInfinity
-    (<>) (Bound _) NegativeInfinity = NegativeInfinity
-    -- undefined (<>) PositiveInfinity NegativeInfinity = ??
-    -- undefined (<>) NegativeInfinity PositiveInfinity = ??
-    (<>) x y = error ((show x)++"<>"++(show y)++" is not defined")
-instance (Show a, Monoid a)=>Monoid (Infinite a) where
-    mempty = (Bound (mempty::a))
+--instance (Show a, Semigroup a)=>Semigroup (Infinite a) where
+--    (<>) (Bound x) (Bound y) = Bound (x <> y)
+--    (<>) NegativeInfinity (Bound _) = NegativeInfinity
+--    (<>) PositiveInfinity (Bound x) = PositiveInfinity
+--    (<>) (Bound _) PositiveInfinity = PositiveInfinity
+--    (<>) (Bound _) NegativeInfinity = NegativeInfinity
+--    -- undefined (<>) PositiveInfinity NegativeInfinity = ??
+--    -- undefined (<>) NegativeInfinity PositiveInfinity = ??
+--    (<>) x y = error ((show x)++"<>"++(show y)++" is not defined")
+--instance (Show a, Monoid a)=>Monoid (Infinite a) where
+--    mempty = (Bound (mempty::a))

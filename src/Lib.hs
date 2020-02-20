@@ -74,8 +74,15 @@ dwgraph1 = add_edge_weighted 'a' 'b' (2::Int)
          . add_edge_weighted 'b' 'd' (2::Int)
          . add_edge_weighted 'c' 'e' (6::Int)
          . add_edge_weighted 'e' 'b' (5::Int)
-         . add_edge_weighted 'e' 'd' (4::Int)
-         $ emptyGraph::(WeightedAdjGraph Int Char)
+         . add_edge_weighted 'e' 'd' (4::Int) -- <-- typecast looks ugly
+         $ emptyGraph::(WeightedAdjGraph Char Int)
+--dwgraph1 = add_edge_weighted 'a' 'b' 2
+--         . add_edge_weighted 'a' 'c' 3
+--         . add_edge_weighted 'b' 'd' 2
+--         . add_edge_weighted 'c' 'e' 6
+--         . add_edge_weighted 'e' 'b' 5
+--         . add_edge_weighted 'e' 'd' 4
+--         $ emptyGraph::(WeightedAdjGraph Char Int)
 
 someFunc :: IO ()
 someFunc = do
@@ -92,4 +99,4 @@ someFunc = do
     putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 5)::[Int])
     putStrLn $ tshow $ ((shortest_path_unweighted dgraph1 0 6)::[Int])
     putStrLn "---------------------------------"
-    putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ (Infinite Int) Char) dwgraph1 'a' 'd')::(Infinite Int, [Char]))
+    putStrLn $ tshow $ ((dijkstra (emptyPriorityQueue::TrivialPQ Char (Infinite Int) ) dwgraph1 'a' 'd')::(Infinite Int, [Char]))

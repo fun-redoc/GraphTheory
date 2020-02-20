@@ -149,7 +149,7 @@ dijkstra::(PriorityQueue pq t (Infinite d) a
             , Applicative t
             , Foldable t
             , Monoid (t a)
-            , Monoid d
+--            , Monoid d
             , Show d
             ,Show (pq t (Infinite d) a))
         =>pq t (Infinite d) a->g a->a->a->(Infinite d, t a)
