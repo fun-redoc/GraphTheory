@@ -99,7 +99,8 @@ shortest_path_unweighted g start dest =
 
  
 
-dijkstra_distance_matrix::(WGraph g a d
+dijkstra_distance_matrix::(WGraph g d a
+                          , Graph (g d) a
                           , Ord d
                           , Num d
                           , Show d
@@ -111,7 +112,7 @@ dijkstra_distance_matrix::(WGraph g a d
                           , Monoid (t a)
                           , PriorityQueue pq t (Infinite d) a
                           ,Show (pq t (Infinite d) a) )=>
-                        pq t (Infinite d) a->g a->a->M.HashMap a (Infinite d, Maybe a)
+                        pq t (Infinite d) a->g d a->a->M.HashMap a (Infinite d, Maybe a)
 dijkstra_distance_matrix priorityQueueContructor graph start = 
     iterate initial_dm (Just start,priorityQueueContructor) 
     where
@@ -141,7 +142,8 @@ dijkstra_distance_matrix priorityQueueContructor graph start =
                    (adjacent_vertices_weighted graph start)
 
 dijkstra::(PriorityQueue pq t (Infinite d) a
-            , WGraph g a d
+            , WGraph g d a
+            , Graph (g d) a
             , Ord d
             , Show a
             , Eq a
@@ -152,7 +154,7 @@ dijkstra::(PriorityQueue pq t (Infinite d) a
 --            , Monoid d
             , Show d
             ,Show (pq t (Infinite d) a))
-        =>pq t (Infinite d) a->g a->a->a->(Infinite d, t a)
+        =>pq t (Infinite d) a->g d a->a->a->(Infinite d, t a)
 dijkstra priorityQueueContructor graph start dest =
     let dm = dijkstra_distance_matrix priorityQueueContructor graph start
      in (fst $ dm M.! dest, backtrack start dest dm)

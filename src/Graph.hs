@@ -23,23 +23,23 @@ import Data.Maybe (fromJust)
 
 
 class Graph g a  where
-  emptyGraph::g a
-  num_vertices::g a ->Int
+  emptyGraph       ::g a
+  num_vertices     ::g a ->Int
   adjacent_vertices::g a ->a->[a]
-  add_vertex::a->g a ->g a 
-  connect::a->a->g a->g a
-  add_edge::a->a->g a ->g a
-  add_edge_undir::a->a->g a->g a
-  get_indegrees::(Distro d Int a)=>g a->(d Int a)
-  all_nodes::g a->[a]
+  add_vertex       ::a->g a ->g a 
+  connect          ::a->a->g a->g a
+  add_edge         ::a->a->g a ->g a
+  add_edge_undir   ::a->a->g a->g a
+  get_indegrees    ::(Distro d Int a)=>g a->(d Int a)
+  all_nodes        ::g a->[a]
 
 
-class (Num p, Graph g a)=>WGraph g a p where
-  get_weight                ::g a->a->a->p
-  adjacent_vertices_weighted::g a->a->[(a,p)]
-  connect_weighted          ::a->a->p->g a->g a
-  add_edge_weighted         ::a->a->p->g a->g a
-  add_edge_weighted_undir   ::a->a->p->g a->g a
+class (Num p)=>WGraph g p a where
+  get_weight                ::g p a->a->a->p
+  adjacent_vertices_weighted::g p a->a->[(a,p)]
+  connect_weighted          ::a->a->p->g p a->g p a
+  add_edge_weighted         ::a->a->p->g p a->g p a
+  add_edge_weighted_undir   ::a->a->p->g p a->g p a
 
 
 class (Num p, Ord p)=>Distro d p a where

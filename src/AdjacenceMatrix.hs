@@ -64,7 +64,7 @@ instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   all_nodes                  = adjg_all_nodes
 
 instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>
-         WGraph (AdjGraph d b) a b where
+         WGraph (AdjGraph d) b a where
   get_weight                 = adjg_get_weight
   adjacent_vertices_weighted = adjg_adjacent_vertices_weighted
   connect_weighted v1 v2 w = adjg_connect v1 v2 w 
