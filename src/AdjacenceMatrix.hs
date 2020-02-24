@@ -7,6 +7,7 @@
 {-# Language FlexibleContexts #-}
 {-# Language ScopedTypeVariables #-}
 {-# Language RankNTypes #-}
+--{-# Language GeneralizedNewtypeDeriving #-}
 
 -- TODO: replace List with array or vector making appending O(1) instead O(n)
 
