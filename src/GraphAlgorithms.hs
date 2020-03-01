@@ -160,7 +160,7 @@ dijkstra priorityQueueContructor graph start dest =
      in (fst $ dm M.! dest, backtrack start dest dm)
 
 
-prims::( PriorityQueue pq t1 d (a,a)
+prims::( PriorityQueue pq t1 d (a,a) -- to be able to use several implementaitons of priority queue, an efficient implementation may be important for efficiency of prims alg.
        , Show (pq t1 d (a,a))
        , WGraph g d a
        , Graph (g d) a
@@ -174,23 +174,28 @@ prims::( PriorityQueue pq t1 d (a,a)
 prims priorityQueueConstructor graph start_vertex 
       = build_spann_tree priority_queue' S.empty emptyGraph
  where
- priority_queue' = foldl (\pq (v,w)->insert_with_priority pq ((start_vertex,v),w)) priorityQueueConstructor  $ adjacent_vertices_weighted graph start_vertex
- build_spann_tree priority_queue already_visited tmp_spann_tree =
---   (trace $ show (vertex, vertex', priority_queue)) $
+ priority_queue' = foldl (\pq (v,w)->insert_with_priority pq ((start_vertex,v),w)) 
+                         priorityQueueConstructor  
+                         $ adjacent_vertices_weighted graph start_vertex
+ build_spann_tree  priority_queue already_visited tmp_spann_tree =
    if is_empty priority_queue
    then -- ready
         tmp_spann_tree
    else -- next alg iteration
         if vertex' `S.member` already_visited
-        then build_spann_tree priority_queue'  already_visited  tmp_spann_tree 
-        else build_spann_tree priority_queue'' already_visited'' tmp_spann_tree' 
+        then -- drop if alread visited
+             build_spann_tree priority_queue'  already_visited   tmp_spann_tree 
+        else -- take if not visited
+             build_spann_tree priority_queue'' already_visited'' tmp_spann_tree' 
    where
     (maybe_edge, priority_queue') = pull_highest_priority_element priority_queue
-    ((vertex, vertex'), weight)   = fromJust maybe_edge
+    ((vertex, vertex'), weight)   = fromJust maybe_edge -- if statement makes shure Nothing cannot happen
     already_visited'              = vertex  `S.insert` already_visited
     already_visited''             = vertex' `S.insert` already_visited'
     adjacence                     = adjacent_vertices_weighted graph vertex'
-    priority_queue''              = foldl (\pq (v,w)->insert_with_priority pq ((vertex',v),w)) priority_queue' adjacence
+    priority_queue''              = foldl (\pq (v,w)->
+                                             insert_with_priority pq ((vertex',v),w)
+                                          ) priority_queue' adjacence
     tmp_spann_tree'               = add_edge_weighted vertex vertex' weight tmp_spann_tree
                        
     

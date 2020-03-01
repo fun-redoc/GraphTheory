@@ -23,6 +23,8 @@ import Data.Maybe (fromJust)
 
 type TrivialPQ a p = PQ [] p a
 
+type Compare a p = (a,p)->(a,p)->Ordering
+
 class (Applicative t, Foldable t, Ord p)=>PriorityQueue pq t p a where
     emptyPriorityQueue::pq t p a
     is_empty::pq t p a->Bool
@@ -37,7 +39,7 @@ instance (Show a, Eq a,  Ord p)=>PriorityQueue PQ [] p a where
     insert_with_priority (PQ pq) (e,p) = PQ $ nubBy (\(x,_) (y,_) -> if x /= y 
                                                                  then False 
                                                                  else True)
-                                            $ reverse 
+--                                            $ reverse 
                                             $ sortOn snd ((e,p):pq)
     pull_highest_priority_element pq@(PQ [])= (Nothing, pq)
     pull_highest_priority_element (PQ (x:xs))= (Just x, PQ xs)
