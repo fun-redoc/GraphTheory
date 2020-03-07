@@ -200,5 +200,40 @@ prims priorityQueueConstructor graph start_vertex
                        
     
     
-        
-        
+kruskal::( PriorityQueue pq t1 d (a,a) -- to be able to use several implementaitons of priority queue, an efficient implementation may be important for efficiency of prims alg.
+       , Show (pq t1 d (a,a))
+       , WGraph g d a
+       , Graph (g d) a
+       , Num d, Ord d
+       , Hashable a, Eq a
+       , Hashable (a,a)
+       , Show a, Show d
+       , WGraph t d a
+       , Graph (t d) a
+       )
+       =>pq t1 d (a,a)->g d a->t d a
+kruskal priorityQueueConstructor graph = build_tree sorted_edges S.empty 0 emptyGraph where
+    sorted_edges = foldl insert_with_priority priorityQueueConstructor $ all_edges_weighted graph
+    n            = (num_vertices graph) - 1
+    build_tree priority_queue already_visited num_edges tmp_tree
+      |  n == num_edges = tmp_tree
+      |  otherwise      = let (shortest_edge, priority_queue') = pull_highest_priority_element priority_queue
+                              maybe_tmp_tree' = shortest_edge 
+                                                >>= (\((v,v'),w)->return $ add_edge_weighted v v' w tmp_tree)
+                              tmp_tree'       = fromJust maybe_tmp_tree'
+                              num_edges'      = num_edges + 1
+                              maybe_already_visited' = shortest_edge
+                                                       >>= (\((v,v'),_)->return 
+                                                       $ (v `S.insert` already_visited))
+                              already_visited' = fromJust maybe_already_visited'
+                              maybe_cycle     = shortest_edge
+                                                >>= (\((v,v'),_)->return $ ((v `S.member` already_visited) ||
+                                                                            (v' `S.member` already_visited)))
+                           in if isNothing shortest_edge
+                                 || isNothing maybe_cycle
+                                 || maybe_cycle == (Just True)
+                              then -- ignore this edge, because a cycle would be introduced, 
+                                   -- or no more edges left
+                                   build_tree priority_queue' already_visited num_edges tmp_tree
+                              else -- continue building
+                                   build_tree priority_queue' already_visited' num_edges' tmp_tree'

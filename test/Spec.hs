@@ -44,22 +44,37 @@ uwgraph2 = add_edge_weighted_undir 0 1 1
 test_prims_1 = 
   TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Char,Char) Int))
                 let tree = ((prims priorityQueueConstructor uwgraph1 'e')::(WeightedAdjGraph Char Int)) 
-                assertEqual "spanning tree and original graph must have same number of verticies"  (num_vertices uwgraph1) (num_vertices tree)
-                assertEqual "spanning tree has no cycles" (isJust $topological_sort tree) True
+                assertEqual "spanning tree and original graph must have same number of verticies" 
+                            (num_vertices uwgraph1) (num_vertices tree)
+                assertEqual "spanning tree has no cycles"
+                            (isJust $topological_sort tree) True
                 putStrLn "\n"
-                putStrLn $ tshow $ tree
+--                putStrLn $ tshow $ tree
            )
 test_prims_2 = 
   TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Int,Int) Int))
                 let tree = ((prims priorityQueueConstructor uwgraph2 1)::(WeightedAdjGraph Int Int)) 
-                assertEqual "spanning tree and original graph must have same number of verticies"  (num_vertices uwgraph2) (num_vertices tree)
-                assertEqual "spanning tree has no cycles" (isJust $topological_sort tree) True
+                assertEqual "spanning tree and original graph must have same number of verticies"
+                            (num_vertices uwgraph2) (num_vertices tree)
+                assertEqual "spanning tree has no cycles"
+                            (isJust $topological_sort tree) True
+                putStrLn "\n"
+--                putStrLn $ tshow $ tree
+           )
+test_kruskal_1 = 
+  TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Char,Char) Int))
+                let tree = ((kruskal priorityQueueConstructor uwgraph1)::(WeightedAdjGraph Char Int)) 
+                assertEqual "spanning tree and original graph must have same number of verticies" 
+                            (num_vertices uwgraph1) (num_vertices tree)
+                assertEqual "spanning tree has no cycles"
+                            (isJust $topological_sort tree) True
                 putStrLn "\n"
                 putStrLn $ tshow $ tree
            )
 
 tests = TestList [ TestLabel "prims alg test 1" test_prims_1
                  , TestLabel "prims alg test 2" test_prims_2 
+                 , TestLabel "kruskal alg test 1" test_kruskal_1
                  ]
                 
 

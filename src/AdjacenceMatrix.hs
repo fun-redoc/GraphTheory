@@ -52,6 +52,20 @@ adjg_get_indegrees (AdjGraph g) =
     where nullDistro = foldr (\v distro->set v 0 distro) emptyDistro (M.keys g)
 adjg_all_nodes (AdjGraph g) = M.keys g
 
+adjg_all_edges_with_weights::(Eq a, Hashable a, Num b, Distro d b a)=>
+                             AdjGraph d b a->[((a,a),b)]
+adjg_all_edges_with_weights (AdjGraph g) 
+    = M.foldrWithKey 
+        (\v neighbours edges->
+          edges++(map (\(v',w)->((v,v'),w)) $ getElemsWithWeights neighbours)
+        ) [] g
+
+adjg_all_edges::(Eq a, Hashable a, Num b, Distro d b a)=>AdjGraph d b a->[(a,a)]
+adjg_all_edges(AdjGraph g) 
+    = M.foldrWithKey 
+        (\v neighbours edges->
+          edges++(map (\v'->((v,v'))) $ getElems neighbours)
+        ) [] g
 
 instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   emptyGraph                 = mkAdjGraph
@@ -63,6 +77,7 @@ instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   add_edge_undir v1 v2       = adjg_add_edge_undir v1 v2 0
   get_indegrees              = adjg_get_indegrees
   all_nodes                  = adjg_all_nodes
+  all_edges                  = adjg_all_edges
 
 instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>
          WGraph (AdjGraph d) b a where
@@ -71,3 +86,4 @@ instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>
   connect_weighted v1 v2 w = adjg_connect v1 v2 w 
   add_edge_weighted v1 v2 w = adjg_add_edge v1 v2 w
   add_edge_weighted_undir v1 v2 w = adjg_add_edge_undir v1 v2 w
+  all_edges_weighted        = adjg_all_edges_with_weights

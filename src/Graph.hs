@@ -32,6 +32,7 @@ class Graph g a  where
   add_edge_undir   ::a->a->g a->g a
   get_indegrees    ::(Distro d Int a)=>g a->(d Int a)
   all_nodes        ::g a->[a]
+  all_edges        ::g a->[(a,a)]
 
 
 class (Num p)=>WGraph g p a where
@@ -40,6 +41,7 @@ class (Num p)=>WGraph g p a where
   connect_weighted          ::a->a->p->g p a->g p a
   add_edge_weighted         ::a->a->p->g p a->g p a
   add_edge_weighted_undir   ::a->a->p->g p a->g p a
+  all_edges_weighted        ::g p a->[((a,a),p)]
 
 
 class (Num p, Ord p)=>Distro d p a where
