@@ -25,6 +25,7 @@ import Data.Maybe (fromJust)
 class Graph g a  where
   emptyGraph       ::g a
   num_vertices     ::g a ->Int
+  num_edges        ::g a ->Int
   adjacent_vertices::g a ->a->[a]
   add_vertex       ::a->g a ->g a 
   connect          ::a->a->g a->g a

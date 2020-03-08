@@ -66,10 +66,12 @@ adjg_all_edges(AdjGraph g)
         (\v neighbours edges->
           edges++(map (\v'->((v,v'))) $ getElems neighbours)
         ) [] g
+adjg_num_edges = length . adjg_all_edges
 
 instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
   emptyGraph                 = mkAdjGraph
   num_vertices               = adjg_num_vertices
+  num_edges                  = adjg_num_edges
   adjacent_vertices          = adjg_adjacent_vertices
   add_vertex                 = adjg_add_vertex
   connect v1 v2              = adjg_connect v1 v2 0

@@ -6,10 +6,11 @@ see: https://en.wikipedia.org/wiki/Graph_theory
 only for joy. making production ready is not intended. memory consumption, performance etc. issues may occur.
 
 ##WORKING
-+ fix bug in prims algorithm (currently finds the longest spanning tree), priority queue implementation should allow parametrization for the order
-+ kruskal
++ there is need for a separate class for undirected graphs and the algs only valid for undirected graphs must be refactored => the class hierarchie must be rebuild
 
 ##DONE
++ fix bug in prims algorithm (currently finds the longest spanning tree), priority queue implementation should allow parametrization for the order
++ kruskal
 + base class
 + simple adjacent matrix implementation using HashMap
 + beadth first

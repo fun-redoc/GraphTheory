@@ -40,6 +40,17 @@ uwgraph2 = add_edge_weighted_undir 0 1 1
          . add_edge_weighted_undir 6 7 1
          . add_edge_weighted_undir 7 0 1
          $ emptyGraph::(WeightedAdjGraph Int Int)
+uwgraph3 = add_edge_weighted_undir 0 1 1
+         . add_edge_weighted_undir 1 2 2
+         . add_edge_weighted_undir 1 3 2
+         . add_edge_weighted_undir 2 3 2
+         . add_edge_weighted_undir 1 4 3
+         . add_edge_weighted_undir 3 5 1
+         . add_edge_weighted_undir 5 4 2
+         . add_edge_weighted_undir 3 6 1
+         . add_edge_weighted_undir 6 7 1
+         . add_edge_weighted_undir 7 0 1
+         $ emptyGraph::(WeightedAdjGraph Int Int)
 
 test_prims_1 = 
   TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Char,Char) Int))
@@ -47,7 +58,7 @@ test_prims_1 =
                 assertEqual "spanning tree and original graph must have same number of verticies" 
                             (num_vertices uwgraph1) (num_vertices tree)
                 assertEqual "spanning tree has no cycles"
-                            (isJust $topological_sort tree) True
+                            ((num_edges tree) == 2*((num_vertices tree)-1)) True
                 putStrLn "\n"
 --                putStrLn $ tshow $ tree
            )
@@ -57,7 +68,7 @@ test_prims_2 =
                 assertEqual "spanning tree and original graph must have same number of verticies"
                             (num_vertices uwgraph2) (num_vertices tree)
                 assertEqual "spanning tree has no cycles"
-                            (isJust $topological_sort tree) True
+                            ((num_edges tree) == 2*((num_vertices tree)-1)) True
                 putStrLn "\n"
 --                putStrLn $ tshow $ tree
            )
@@ -67,7 +78,17 @@ test_kruskal_1 =
                 assertEqual "spanning tree and original graph must have same number of verticies" 
                             (num_vertices uwgraph1) (num_vertices tree)
                 assertEqual "spanning tree has no cycles"
-                            (isJust $topological_sort tree) True
+                            ((num_edges tree) == 2*((num_vertices tree)-1)) True
+                putStrLn "\n"
+--                putStrLn $ tshow $ tree
+           )
+test_kruskal_2 = 
+  TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Int,Int) Int))
+                let tree = ((kruskal priorityQueueConstructor uwgraph3)::(WeightedAdjGraph Int Int)) 
+                assertEqual "spanning tree and original graph must have same number of verticies" 
+                            (num_vertices uwgraph3) (num_vertices tree)
+                assertEqual "spanning tree has no cycles"
+                            ((num_edges tree) == 2*((num_vertices tree)-1)) True
                 putStrLn "\n"
                 putStrLn $ tshow $ tree
            )
@@ -75,6 +96,7 @@ test_kruskal_1 =
 tests = TestList [ TestLabel "prims alg test 1" test_prims_1
                  , TestLabel "prims alg test 2" test_prims_2 
                  , TestLabel "kruskal alg test 1" test_kruskal_1
+                 , TestLabel "kruskal alg test 2" test_kruskal_2
                  ]
                 
 

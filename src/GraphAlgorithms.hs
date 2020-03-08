@@ -196,7 +196,7 @@ prims priorityQueueConstructor graph start_vertex
     priority_queue''              = foldl (\pq (v,w)->
                                              insert_with_priority pq ((vertex',v),w)
                                           ) priority_queue' adjacence
-    tmp_spann_tree'               = add_edge_weighted vertex vertex' weight tmp_spann_tree
+    tmp_spann_tree'               = add_edge_weighted_undir vertex vertex' weight tmp_spann_tree
                        
     
     
@@ -205,35 +205,30 @@ kruskal::( PriorityQueue pq t1 d (a,a) -- to be able to use several implementait
        , WGraph g d a
        , Graph (g d) a
        , Num d, Ord d
-       , Hashable a, Eq a
+       , Hashable a, Eq a, Ord a
        , Hashable (a,a)
        , Show a, Show d
        , WGraph t d a
        , Graph (t d) a
        )
        =>pq t1 d (a,a)->g d a->t d a
-kruskal priorityQueueConstructor graph = build_tree sorted_edges S.empty 0 emptyGraph where
-    sorted_edges = foldl insert_with_priority priorityQueueConstructor $ all_edges_weighted graph
+kruskal priorityQueueConstructor graph = build_tree sorted_edges 0 emptyGraph where
+    sorted_edges = foldl (\pq ((v1,v2),w) -> insert_with_priority pq (((min v1 v2), (max v1 v2)),w))
+                         priorityQueueConstructor $ all_edges_weighted graph
     n            = (num_vertices graph) - 1
-    build_tree priority_queue already_visited num_edges tmp_tree
+    build_tree priority_queue num_edges tmp_tree
       |  n == num_edges = tmp_tree
       |  otherwise      = let (shortest_edge, priority_queue') = pull_highest_priority_element priority_queue
                               maybe_tmp_tree' = shortest_edge 
-                                                >>= (\((v,v'),w)->return $ add_edge_weighted v v' w tmp_tree)
+                                                >>= (\((v,v'),w)->return $ add_edge_weighted_undir v v' w tmp_tree)
                               tmp_tree'       = fromJust maybe_tmp_tree'
                               num_edges'      = num_edges + 1
-                              maybe_already_visited' = shortest_edge
-                                                       >>= (\((v,v'),_)->return 
-                                                       $ (v `S.insert` already_visited))
-                              already_visited' = fromJust maybe_already_visited'
-                              maybe_cycle     = shortest_edge
-                                                >>= (\((v,v'),_)->return $ ((v `S.member` already_visited) ||
-                                                                            (v' `S.member` already_visited)))
-                           in if isNothing shortest_edge
-                                 || isNothing maybe_cycle
-                                 || maybe_cycle == (Just True)
+                              has_cycle = (num_edges' > ((num_vertices tmp_tree')-1))
+                           in if has_cycle
                               then -- ignore this edge, because a cycle would be introduced, 
                                    -- or no more edges left
-                                   build_tree priority_queue' already_visited num_edges tmp_tree
+--                                   (trace $ show ("here 1", shortest_edge, has_cycle,2*num_edges',((num_vertices tmp_tree')-1))) $
+                                   build_tree priority_queue' num_edges tmp_tree
                               else -- continue building
-                                   build_tree priority_queue' already_visited' num_edges' tmp_tree'
+--                                   (trace$ show("here 2", shortest_edge,num_edges',((num_vertices tmp_tree')))) $
+                                   build_tree priority_queue' num_edges' tmp_tree'
