@@ -30,6 +30,12 @@ library
       Lib
   other-modules:
       Graph
+    , UGraph
+    , DGraph
+    , WGraph
+    , UWGraph
+    , DWGraph
+    , Distro
     , AdjacenceMatrix
     , PriorityQueue
     , GraphAlgorithms
@@ -62,6 +68,12 @@ test-suite GraphTheory-test
   main-is: Spec.hs
   other-modules:
       Graph
+    , UGraph
+    , DGraph
+    , WGraph
+    , UWGraph
+    , DWGraph
+    , Distro
     , AdjacenceMatrix
     , PriorityQueue
     , GraphAlgorithms
