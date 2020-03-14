@@ -24,38 +24,46 @@ import Data.Hashable (Hashable)
 import Data.Semigroup
 import Data.Maybe (fromJust)
 
-import Graph
+import qualified Graph as G
+import qualified UGraph as UG
+import qualified DGraph as DG
+import qualified WGraph as WG
+import qualified DWGraph as DW
+import qualified UWGraph as UW
+import Distro
 import PriorityQueue
 
-breadth_first::(Graph g a, Eq a, Hashable a)=>g a->a->[a]
-breadth_first g start = iterate queue visited [] where
+breadth_first::(G.Graph g a, Eq a, Hashable a)=>g a->a->a->Maybe [a]
+breadth_first g start dest  = iterate queue visited [] where
     queue = [start]
     visited = S.empty
-    iterate [] _ r = r
-    iterate (vertex:vs) visited res = 
-        let visited' = (S.insert vertex visited)
-         in if (S.member vertex visited)
-            then iterate vs visited res
-            else iterate (not_yet_visited vertex visited' vs) visited' (res++[vertex])
+    iterate [] _ _ = Nothing
+    iterate (vertex:vs) visited res 
+        | vertex == dest = Just (res++[dest]) 
+        | otherwise = 
+            let visited' = (S.insert vertex visited)
+             in if (S.member vertex visited)
+                then iterate vs visited res
+                else iterate (not_yet_visited vertex visited' vs) visited' (res++[vertex])
     not_yet_visited vertex' visited queue = 
         foldr (\v queue'->if not (S.member v visited)
                           then queue'++[v]
                           else queue'
-              ) queue (adjacent_vertices g vertex')
+              ) queue (G.adjacent_vertices g vertex')
 
 
-topological_sort::(Graph g a, Eq a, Hashable a)=>g a->Maybe [a]
+topological_sort::(G.Graph g a, DG.DGraph g a, Eq a, Hashable a)=>g a->Maybe [a]
 topological_sort g = sortt g queue indegrees [] where
-  indegrees = (get_indegrees g) 
+  indegrees = (DG.get_indegrees g) 
   queue = getElems $ filterByProb (==0) indegrees
 
-sortt::(Graph g a, Eq a, Hashable a)=>g a->[a]->PMF Int a->[a]->Maybe [a]
-sortt g [] indegrees sorted = if length sorted == num_vertices g
+sortt::(G.Graph g a, DG.DGraph g a, Eq a, Hashable a)=>g a->[a]->PMF Int a->[a]->Maybe [a]
+sortt g [] indegrees sorted = if length sorted == G.num_vertices g
                           then Just sorted
                           else Nothing -- error ("Failure, graph is not acyclical." ++ (show $ length sorted) ++ " / " ++ (show $ num_vertices g))
 sortt g (v:qtail) indegrees sorted = 
     let sorted' = sorted++[v]
-        adj = adjacent_vertices g v
+        adj = G.adjacent_vertices g v
         (indegrees', queue') = foldr (\v2 (ind, qu) ->
                                       let ind' = decBy 1 v2 ind
                                           qu' = if (getMass ind' v2) == 0 then qu++[v2] else qu
@@ -63,14 +71,14 @@ sortt g (v:qtail) indegrees sorted =
                                    ) (indegrees, qtail) adj
      in sortt g queue' indegrees' sorted'
 
-distance_matrix::(Hashable k, Num a, Ord a, Graph g k, Eq k)=>
+distance_matrix::(Hashable k, Num a, Ord a, G.Graph g k, Eq k)=>
      g k  -> k -> HashMap k (a, Maybe k)
 distance_matrix g start = iterate initial_dm (start : (M.keys $ M.delete start initial_dm)) where
   initial_dm = foldr (\v acc-> 
                         if (v == start)
                         then (M.insert v (0, Just v) acc)
                         else (M.insert v (-1, Nothing) acc)
-                    ) M.empty $ all_nodes g
+                    ) M.empty $ G.all_nodes g
   iterate dm [] = dm
   iterate dm (v:vs) = iterate dm' vs where
     start_dm = dm M.! v
@@ -82,7 +90,7 @@ distance_matrix g start = iterate initial_dm (start : (M.keys $ M.delete start i
                                                              then (last_dist, last_vertx)
                                                              else (start_dist+1, Just v)
                                 ) v'
-                ) dm (adjacent_vertices g v)
+                ) dm (G.adjacent_vertices g v)
  
 backtrack::(Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>a->a->M.HashMap a (d, Maybe a)->t a
 backtrack start dest dist_mat = iterate dest (pure dest) where
@@ -93,14 +101,14 @@ backtrack start dest dist_mat = iterate dest (pure dest) where
 
   
 
-shortest_path_unweighted::(Graph g a, Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>g a->a->a->t a
+shortest_path_unweighted::(G.Graph g a, Show a, Eq a, Hashable a, Applicative t, Foldable t, Monoid (t a))=>g a->a->a->t a
 shortest_path_unweighted g start dest =
     backtrack start dest $ distance_matrix g start
 
  
 
-dijkstra_distance_matrix::(WGraph g d a
-                          , Graph (g d) a
+dijkstra_distance_matrix::( WG.WGraph g d a
+                          , G.Graph (g d) a
                           , Ord d
                           , Num d
                           , Show d
@@ -120,7 +128,7 @@ dijkstra_distance_matrix priorityQueueContructor graph start =
                           if (v == start)
                           then (M.insert v (Bound 0, Just v)           acc)
                           else (M.insert v (PositiveInfinity, Nothing) acc)
-                      ) M.empty $ all_nodes graph
+                      ) M.empty $ G.all_nodes graph
     iterate dm (Nothing, _)  = dm
     iterate dm (Just start, priority_queue)  = iterate dm' (start''', priority_queue'')
       where
@@ -139,11 +147,11 @@ dijkstra_distance_matrix priorityQueueContructor graph start =
                         prq''' = update_weight prq'' v new_dist
                      in (dm'', prq''')
                  ) (dm,  priority_queue) 
-                   (adjacent_vertices_weighted graph start)
+                   (WG.adjacent_vertices graph start)
 
 dijkstra::(PriorityQueue pq t (Infinite d) a
-            , WGraph g d a
-            , Graph (g d) a
+            , WG.WGraph g d a
+            , G.Graph (g d) a
             , Ord d
             , Show a
             , Eq a
@@ -162,21 +170,24 @@ dijkstra priorityQueueContructor graph start dest =
 
 prims::( PriorityQueue pq t1 d (a,a) -- to be able to use several implementaitons of priority queue, an efficient implementation may be important for efficiency of prims alg.
        , Show (pq t1 d (a,a))
-       , WGraph g d a
-       , Graph (g d) a
+       , UW.UWGraph g d a
+       , WG.WGraph g d a
+       , G.Graph (g d) a
        , Num d, Ord d
        , Hashable a, Eq a
        , Show a, Show d
-       , WGraph t d a
-       , Graph (t d) a
+       , UW.UWGraph t d a
+       , WG.WGraph t d a
+       , UG.UGraph (t d) a
+       , G.Graph (t d) a
        )
        =>pq t1 d (a,a)->g d a->a->t d a
 prims priorityQueueConstructor graph start_vertex 
-      = build_spann_tree priority_queue' S.empty emptyGraph
+      = build_spann_tree priority_queue' S.empty G.emptyGraph
  where
  priority_queue' = foldl (\pq (v,w)->insert_with_priority pq ((start_vertex,v),w)) 
                          priorityQueueConstructor  
-                         $ adjacent_vertices_weighted graph start_vertex
+                         $ WG.adjacent_vertices graph start_vertex
  build_spann_tree  priority_queue already_visited tmp_spann_tree =
    if is_empty priority_queue
    then -- ready
@@ -192,38 +203,42 @@ prims priorityQueueConstructor graph start_vertex
     ((vertex, vertex'), weight)   = fromJust maybe_edge -- if statement makes shure Nothing cannot happen
     already_visited'              = vertex  `S.insert` already_visited
     already_visited''             = vertex' `S.insert` already_visited'
-    adjacence                     = adjacent_vertices_weighted graph vertex'
+    adjacence                     = WG.adjacent_vertices graph vertex'
     priority_queue''              = foldl (\pq (v,w)->
                                              insert_with_priority pq ((vertex',v),w)
                                           ) priority_queue' adjacence
-    tmp_spann_tree'               = add_edge_weighted_undir vertex vertex' weight tmp_spann_tree
+    tmp_spann_tree'               = UW.add_edge vertex vertex' weight tmp_spann_tree
                        
     
     
 kruskal::( PriorityQueue pq t1 d (a,a) -- to be able to use several implementaitons of priority queue, an efficient implementation may be important for efficiency of prims alg.
        , Show (pq t1 d (a,a))
-       , WGraph g d a
-       , Graph (g d) a
+       , UW.UWGraph g d a
+       , UG.UGraph (t d) a
+       , WG.WGraph g d a
+       , G.Graph (g d) a
        , Num d, Ord d
        , Hashable a, Eq a, Ord a
        , Hashable (a,a)
        , Show a, Show d
-       , WGraph t d a
-       , Graph (t d) a
+       , UW.UWGraph t d a
+       , WG.WGraph t d a
+       , UG.UGraph (t d) a
+       , G.Graph (t d) a
        )
        =>pq t1 d (a,a)->g d a->t d a
-kruskal priorityQueueConstructor graph = build_tree sorted_edges 0 emptyGraph where
+kruskal priorityQueueConstructor graph = build_tree sorted_edges 0 G.emptyGraph where
     sorted_edges = foldl (\pq ((v1,v2),w) -> insert_with_priority pq (((min v1 v2), (max v1 v2)),w))
-                         priorityQueueConstructor $ all_edges_weighted graph
-    n            = (num_vertices graph) - 1
+                         priorityQueueConstructor $ UW.all_edges graph
+    n            = (G.num_vertices graph) - 1
     build_tree priority_queue num_edges tmp_tree
       |  n == num_edges = tmp_tree
       |  otherwise      = let (shortest_edge, priority_queue') = pull_highest_priority_element priority_queue
                               maybe_tmp_tree' = shortest_edge 
-                                                >>= (\((v,v'),w)->return $ add_edge_weighted_undir v v' w tmp_tree)
+                                                >>= (\((v,v'),w)->return $ UW.add_edge v v' w tmp_tree)
                               tmp_tree'       = fromJust maybe_tmp_tree'
                               num_edges'      = num_edges + 1
-                              has_cycle = (num_edges' > ((num_vertices tmp_tree')-1))
+                              has_cycle = (num_edges' > ((G.num_vertices tmp_tree')-1))
                            in if has_cycle
                               then -- ignore this edge, because a cycle would be introduced, 
                                    -- or no more edges left

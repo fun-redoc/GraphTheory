@@ -9,7 +9,7 @@
 
 -- TODO: replace List with array or vector making appending O(1) instead O(n)
 
-module Graph where
+module WGraph where
 
 import Debug.Trace (trace)
 
@@ -18,14 +18,12 @@ import CorePrelude
 import qualified Data.HashMap.Lazy as M
 import qualified Data.HashSet as S
 import Data.Hashable (Hashable)
+--import Data.Semigroup
 import Data.Maybe (fromJust)
 
+import qualified Graph as G
 import Distro
 
-
-class Graph g a  where
-  emptyGraph       ::g a
-  num_vertices     ::g a ->Int
-  adjacent_vertices::g a ->a->[a]
-  all_nodes        ::g a->[a]
-  add_vertex       ::a->g a ->g a 
+class (Num p, G.Graph (g p) a)=>WGraph g p a where
+  get_weight::g p a->a->a->p
+  adjacent_vertices::g p a->a->[(a,p)]

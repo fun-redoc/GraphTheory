@@ -20,96 +20,97 @@ import Data.Hashable (Hashable)
 import Data.Semigroup
 import Data.Maybe (fromJust)
 
-import Graph
+import qualified Graph as G
+import qualified UGraph as UG
+import qualified DGraph as DG
+import qualified WGraph as WG
+import qualified DWGraph as DW
+import qualified UWGraph as UW
+import Distro
 import AdjacenceMatrix
 import GraphAlgorithms
 import PriorityQueue
 
-ugraph = add_edge_undir 0 1
-       . add_edge_undir 1 2
-       . add_edge_undir 2 7
-       . add_edge_undir 2 4
-       . add_edge_undir 2 3
-       . add_edge_undir 1 5
-       . add_edge_undir 5 6
-       . add_edge_undir 3 6
-       . add_edge_undir 3 4
-       . add_edge_undir 6 8
-       $ emptyGraph::(UnweightedAdjGraph Int)
-dgraph =  add_edge 0 1
-        . add_edge 1 2
-        . add_edge 2 7
-        . add_edge 2 4
-        . add_edge 2 3
-        . add_edge 1 5
-        . add_edge 5 6
-        . add_edge 3 6
-        . add_edge 3 4
-        . add_edge 6 8
-        $ emptyGraph::(UnweightedAdjGraph Int)
-ugraph1 = add_edge_weighted_undir 0 1 1
-        . add_edge_weighted_undir 1 2 1
-        . add_edge_weighted_undir 1 3 1
-        . add_edge_weighted_undir 2 3 1
-        . add_edge_weighted_undir 1 4 1
-        . add_edge_weighted_undir 3 5 1
-        . add_edge_weighted_undir 5 4 1
-        . add_edge_weighted_undir 3 6 1
-        . add_edge_weighted_undir 6 7 1
-        . add_edge_weighted_undir 0 7 1
-        $ emptyGraph::(WeightedAdjGraph Int Int)
-dgraph1 = add_edge_weighted 0 1 1
-        . add_edge_weighted 1 2 1
-        . add_edge_weighted 1 3 1
-        . add_edge_weighted 2 3 1
-        . add_edge_weighted 1 4 1
-        . add_edge_weighted 3 5 1
-        . add_edge_weighted 5 4 1
-        . add_edge_weighted 3 6 1
-        . add_edge_weighted 6 7 1
-        . add_edge_weighted 0 7 1
-        $ emptyGraph::(WeightedAdjGraph Int Int)
---dwgraph1 = add_edge_weighted 'a' 'b' (2::Int)
---         . add_edge_weighted 'a' 'c' (3::Int)
---         . add_edge_weighted 'b' 'd' (2::Int)
---         . add_edge_weighted 'c' 'e' (6::Int)
---         . add_edge_weighted 'e' 'b' (5::Int)
---         . add_edge_weighted 'e' 'd' (4::Int) -- <-- typecast looks ugly
---         $ emptyGraph::(WeightedAdjGraph Char Int)
-dwgraph1 = add_edge_weighted 'a' 'b' 2
-         . add_edge_weighted 'a' 'c' 3
-         . add_edge_weighted 'b' 'd' 2
-         . add_edge_weighted 'c' 'e' 6
-         . add_edge_weighted 'e' 'b' 5
-         . add_edge_weighted 'e' 'd' 4
-         $ emptyGraph::(WeightedAdjGraph Char Int)
-uwgraph1 = add_edge_weighted_undir 'a' 'b' 2
-         . add_edge_weighted_undir 'a' 'c' 3
-         . add_edge_weighted_undir 'b' 'd' 2
-         . add_edge_weighted_undir 'c' 'e' 6
-         . add_edge_weighted_undir 'e' 'b' 5
-         . add_edge_weighted_undir 'e' 'd' 4
-         $ emptyGraph::(WeightedAdjGraph Char Int)
-uwgraph2 = add_edge_weighted_undir 0 1 1
-         . add_edge_weighted_undir 1 2 2
-         . add_edge_weighted_undir 1 3 2
-         . add_edge_weighted_undir 2 3 2
-         . add_edge_weighted_undir 1 4 3
-         . add_edge_weighted_undir 3 5 1
-         . add_edge_weighted_undir 5 4 3
-         . add_edge_weighted_undir 3 6 1
-         . add_edge_weighted_undir 6 7 1
-         . add_edge_weighted_undir 7 0 1
-         $ emptyGraph::(WeightedAdjGraph Int Int)
+--ugraph = G.emptyGraph::(UnweightedAdjGraph Int)
+ugraph = UG.add_edge 0 1
+       . UG.add_edge 1 2
+       . UG.add_edge 2 7
+       . UG.add_edge 2 4
+       . UG.add_edge 2 3
+       . UG.add_edge 1 5
+       . UG.add_edge 5 6
+       . UG.add_edge 3 6
+       . UG.add_edge 3 4
+       . UG.add_edge 6 8
+       $ G.emptyGraph::(UnweightedAdjGraph Int)
+dgraph =  DG.add_edge 0 1
+        . DG.add_edge 1 2
+        . DG.add_edge 2 7
+        . DG.add_edge 2 4
+        . DG.add_edge 2 3
+        . DG.add_edge 1 5
+        . DG.add_edge 5 6
+        . DG.add_edge 3 6
+        . DG.add_edge 3 4
+        . DG.add_edge 6 8
+        $ G.emptyGraph::(UnweightedAdjGraph Int)
+ugraph1 = UG.add_edge 0 1
+        . UG.add_edge 1 2
+        . UG.add_edge 1 3
+        . UG.add_edge 2 3
+        . UG.add_edge 1 4
+        . UG.add_edge 3 5
+        . UG.add_edge 5 4
+        . UG.add_edge 3 6
+        . UG.add_edge 6 7
+        . UG.add_edge 0 7
+        $ G.emptyGraph::(UnweightedAdjGraph Int)
+dgraph1 = DG.add_edge 0 1
+        . DG.add_edge 1 2
+        . DG.add_edge 1 3
+        . DG.add_edge 2 3
+        . DG.add_edge 1 4
+        . DG.add_edge 3 5
+        . DG.add_edge 5 4
+        . DG.add_edge 3 6
+        . DG.add_edge 6 7
+        . DG.add_edge 0 7
+        $ G.emptyGraph::(UnweightedAdjGraph Int)
+dwgraph1 = DW.add_edge 'a' 'b' 2
+         . DW.add_edge 'a' 'c' 3
+         . DW.add_edge 'b' 'd' 2
+         . DW.add_edge 'c' 'e' 6
+         . DW.add_edge 'e' 'b' 5
+         . DW.add_edge 'e' 'd' 4
+         $ G.emptyGraph::(WeightedAdjGraph Char Int)
+uwgraph1 = UW.add_edge 'a' 'b' 2
+         . UW.add_edge 'a' 'c' 3
+         . UW.add_edge 'b' 'd' 2
+         . UW.add_edge 'c' 'e' 6
+         . UW.add_edge 'e' 'b' 5
+         . UW.add_edge 'e' 'd' 4
+         $ G.emptyGraph::(WeightedAdjGraph Char Int)
+uwgraph2 = UW.add_edge 0 1 1
+         . UW.add_edge 1 2 2
+         . UW.add_edge 1 3 2
+         . UW.add_edge 2 3 2
+         . UW.add_edge 1 4 3
+         . UW.add_edge 3 5 1
+         . UW.add_edge 5 4 3
+         . UW.add_edge 3 6 1
+         . UW.add_edge 6 7 1
+         . UW.add_edge 7 0 1
+         $ G.emptyGraph::(WeightedAdjGraph Int Int)
 
 someFunc :: IO ()
 someFunc = do
     putStrLn "-START---------------------------"
-    --putStrLn $ tshow $ dgraph 
+--    putStrLn $ tshow $ ugraph 
     putStrLn "-bread first search--------------"
-    putStrLn $ tshow $ breadth_first ugraph 2
+    putStrLn $ tshow $ breadth_first ugraph 2 6
+    putStrLn $ tshow $ breadth_first ugraph 2 9
     putStrLn "-getting indegrees---------------"
-    putStrLn $ tshow $ (get_indegrees dgraph::(PMF Int Int))
+    putStrLn $ tshow $ (DG.get_indegrees dgraph::(PMF Int Int))
     putStrLn "-topological sort----------------"
     putStrLn $ tshow $ topological_sort dgraph
     putStrLn "-shortest path undirected unweighted-"

@@ -24,7 +24,13 @@ import Data.Hashable (Hashable)
 import Data.Semigroup
 import Data.Maybe (fromJust)
 
-import Graph
+import qualified Graph as G
+import qualified UGraph as UG
+import qualified DGraph as DG
+import qualified WGraph as WG
+import qualified DWGraph as DW
+import qualified UWGraph as UW
+import Distro
 
 type UnweightedAdjGraph = (AdjGraph PMF Int)
 type WeightedAdjGraph a b = (Num b)=>(AdjGraph PMF) b a
@@ -68,24 +74,47 @@ adjg_all_edges(AdjGraph g)
         ) [] g
 adjg_num_edges = length . adjg_all_edges
 
-instance (Eq a, Hashable a, Ord b, Distro d b a)=>Graph (AdjGraph d b) a where
+instance (Eq a, Hashable a, Ord b, Distro d b a)=>G.Graph (AdjGraph d b) a where
   emptyGraph                 = mkAdjGraph
   num_vertices               = adjg_num_vertices
-  num_edges                  = adjg_num_edges
   adjacent_vertices          = adjg_adjacent_vertices
   add_vertex                 = adjg_add_vertex
-  connect v1 v2              = adjg_connect v1 v2 0
-  add_edge v1 v2             = adjg_add_edge v1 v2 0
-  add_edge_undir v1 v2       = adjg_add_edge_undir v1 v2 0
-  get_indegrees              = adjg_get_indegrees
   all_nodes                  = adjg_all_nodes
-  all_edges                  = adjg_all_edges
 
-instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>
-         WGraph (AdjGraph d) b a where
+instance (Eq a, Hashable a, Num b, Distro d b a)=>UG.UGraph (AdjGraph d b) a where
+  connect v1 v2 g  = adjg_connect v2 v1 0 $ adjg_connect v1 v2 0 g
+  add_edge v1 v2 g = adjg_add_edge v2 v1 0 $ adjg_add_edge v1 v2 0 g
+  num_edges                  = (`quot` 2) . adjg_num_edges
+  all_edges                  = (nubBy (\(v1,v2) (v1',v2')-> -- make undir
+                                            (v1 == v1' && v2 == v2')
+                                         || (v1 == v2' && v2 == v1')
+                                      )
+                               )
+                               . adjg_all_edges
+
+instance (Eq a, Hashable a, Num b, Distro d b a)=>DG.DGraph (AdjGraph d b) a where
+  connect v1 v2 g  = adjg_connect v1 v2 0 g
+  add_edge v1 v2 g = adjg_add_edge v1 v2 0 g
+  num_edges        = adjg_num_edges
+  all_edges        = adjg_all_edges
+  get_indegrees    = adjg_get_indegrees
+
+instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>WG.WGraph (AdjGraph d) b a where
   get_weight                 = adjg_get_weight
-  adjacent_vertices_weighted = adjg_adjacent_vertices_weighted
-  connect_weighted v1 v2 w = adjg_connect v1 v2 w 
-  add_edge_weighted v1 v2 w = adjg_add_edge v1 v2 w
-  add_edge_weighted_undir v1 v2 w = adjg_add_edge_undir v1 v2 w
-  all_edges_weighted        = adjg_all_edges_with_weights
+  adjacent_vertices          = adjg_adjacent_vertices_weighted
+
+instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>DW.DWGraph (AdjGraph d) b a where
+  connect  v1 v2 w = adjg_connect v1 v2 w 
+  add_edge v1 v2 w = adjg_add_edge v1 v2 w
+  all_edges        = adjg_all_edges_with_weights
+
+instance (Num b, Eq a, Hashable a, Ord b, Distro d b a)=>UW.UWGraph (AdjGraph d) b a where
+  connect v1 v2 w  = adjg_connect v2 v1 w . adjg_connect v1 v2 w
+  add_edge v1 v2 w = adjg_add_edge v2 v1 w . adjg_add_edge v1 v2 w
+--  num_edges                  = (`quot` 2) . adjg_num_edges
+  all_edges                  = (nubBy (\((v1,v2),_) ((v1',v2'),_)-> -- make undir
+                                            (v1 == v1' && v2 == v2')
+                                         || (v1 == v2' && v2 == v1')
+                                      )
+                               )
+                               . adjg_all_edges_with_weights
