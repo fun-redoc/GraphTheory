@@ -38,7 +38,7 @@ type WeightedAdjGraph a b = (Num b)=>(AdjGraph PMF) b a
 data AdjGraph d b a = (Num b, Distro d b a)=>AdjGraph {getMap::M.HashMap a (d b a)}
 
 instance (Show b, Show a, Show (d b a))=>Show (AdjGraph d b a) where
-    show (AdjGraph hm) = "AM: "++(show hm)
+    show (AdjGraph hm) = "\"AM:\"" ++ (show hm)
 
 mkAdjGraph = AdjGraph (M.empty)
 adjg_num_vertices (AdjGraph g) = M.size g

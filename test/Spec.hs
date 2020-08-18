@@ -28,6 +28,17 @@ import AdjacenceMatrix
 import GraphAlgorithms
 import PriorityQueue
 
+-- the main
+main = runTestTT tests
+
+-- the test suite
+tests = TestList [ TestLabel "prims alg test 1" test_prims_1
+                 , TestLabel "prims alg test 2" test_prims_2 
+                 , TestLabel "kruskal alg test 1" test_kruskal_1
+                 , TestLabel "kruskal alg test 2" test_kruskal_2
+                 ]
+
+-- the data for tests
 uwgraph1 = UW.add_edge 'a' 'b' 2
          . UW.add_edge 'a' 'c' 3
          . UW.add_edge 'b' 'd' 2
@@ -58,6 +69,7 @@ uwgraph3 = UW.add_edge 0 1 1
          . UW.add_edge 7 0 1
          $ G.emptyGraph::(WeightedAdjGraph Int Int)
 
+-- the testcases
 test_prims_1 = 
   TestCase ( do let priorityQueueConstructor = (emptyPriorityQueue::(TrivialPQ (Char,Char) Int))
                 let tree = ((prims priorityQueueConstructor uwgraph1 'e')::(WeightedAdjGraph Char Int)) 
@@ -99,11 +111,3 @@ test_kruskal_2 =
                 putStrLn $ tshow $ tree
            )
 
-tests = TestList [ TestLabel "prims alg test 1" test_prims_1
-                 , TestLabel "prims alg test 2" test_prims_2 
-                 , TestLabel "kruskal alg test 1" test_kruskal_1
-                 , TestLabel "kruskal alg test 2" test_kruskal_2
-                 ]
-                
-
-main = runTestTT tests

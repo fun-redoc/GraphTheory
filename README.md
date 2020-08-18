@@ -22,6 +22,7 @@ only for joy. making production ready is not intended. memory consumption, perfo
 + prim
 
 ##TODO
++ move build settings from cabal file to package.yaml
 + dijkstra - why doesn't terminate when has cycles all edges have same weight??? (unweighted graph)
 + dijkstra - optimize alg when there is no way, currently runtime error 
 + dijkstra - provide a faster implementation for priority queue
