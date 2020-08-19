@@ -27,8 +27,6 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
-  other-modules:
       Graph
     , UGraph
     , DGraph
@@ -39,6 +37,8 @@ library
     , AdjacenceMatrix
     , PriorityQueue
     , GraphAlgorithms
+    , Lib
+  other-modules:
   hs-source-dirs:
       src
   build-depends:
